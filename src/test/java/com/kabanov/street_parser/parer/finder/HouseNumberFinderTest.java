@@ -31,7 +31,7 @@ class HouseNumberFinderTest {
         WordTraversal wordTraversal = new WordTraversalImpl("45A Musterstrasse");
         FindResult result = houseNumberFinder.find(wordTraversal);
         Assertions.assertEquals(0, result.beginIndex);
-        Assertions.assertEquals(2, result.endIndex);
+        Assertions.assertEquals(1, result.endIndex);
     }
 
     @Test
@@ -66,6 +66,19 @@ class HouseNumberFinderTest {
         Assertions.assertEquals(4, result.endIndex);
     }
 
+    @Test
+    public void shouldFindHouseNumberWhenCommaIsInBeginning() {
+        WordTraversal wordTraversal = new WordTraversalImpl("No 1540, Calle 39");
+        FindResult result = houseNumberFinder.find(wordTraversal);
+        Assertions.assertEquals(0, result.beginIndex);
+        Assertions.assertEquals(2, result.endIndex);
+    }
 
-
+    @Test
+    public void shouldFindHouseNumberWhenCommaIsInTheEnd() {
+        WordTraversal wordTraversal = new WordTraversalImpl("Calle 39, No 1540");
+        FindResult result = houseNumberFinder.find(wordTraversal);
+        Assertions.assertEquals(3, result.beginIndex);
+        Assertions.assertEquals(5, result.endIndex);
+    }
 }

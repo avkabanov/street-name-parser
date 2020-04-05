@@ -4,6 +4,6 @@ public class ConsoleWriter implements OutputWriter {
     
     @Override
     public void write(String string) {
-        
+        System.out.println(string);
     }
 }

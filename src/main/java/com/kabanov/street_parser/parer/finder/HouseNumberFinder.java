@@ -2,6 +2,7 @@ package com.kabanov.street_parser.parer.finder;
 
 import javax.annotation.Nullable;
 
+import com.kabanov.street_parser.data.StartStreetMarker;
 import com.kabanov.street_parser.parer.traversal.WordEntry;
 import com.kabanov.street_parser.parer.traversal.WordTraversal;
 
@@ -9,78 +10,111 @@ public class HouseNumberFinder {
 
     public FindResult find(WordTraversal wordTraversal) {
 
-        FindResult findResult = tryGetHouseNumberFromTheBeginnigOfTheString(wordTraversal);
-        if (findResult != null) {
-            return findResult;
-        }
-
-        return tryGetHouseNumberFromTheEndOfTheString(wordTraversal);
-    }
-
-    private FindResult tryGetHouseNumberFromTheEndOfTheString(
-            WordTraversal wordTraversal) {
-        WordEntry lastDigit = moveToLastDigit(wordTraversal);
-        if (lastDigit == null) {
-            return null;
-        }
-
-        WordEntry current;
-        do {
-            current = wordTraversal.moveToNext();
-            if (current == null) {   // we reached the end 
-                return new FindResult(lastDigit.getIndex(), wordTraversal.getWordsCount());
-            }
-        } while (isAPartOfAHouseNumber(current));
-        return null;   // we return null because of assumption that house number can not be in the middle 
-
-    }
-
-    private FindResult tryGetHouseNumberFromTheBeginnigOfTheString(WordTraversal wordTraversal) {
         WordEntry firstDigit = moveToFirstDigit(wordTraversal);
         if (firstDigit == null) {
+            return null; // no digits in the string found
+        }
+
+        FindResult result = tryGetHouseNumberAtPosition(wordTraversal, firstDigit);
+        if (result != null) {
+            return result;
+        }
+
+        WordEntry lastDigit = moveToLastDigit(wordTraversal);
+        assert lastDigit != null;
+        if (firstDigit.getIndex() == lastDigit.getIndex()) {
+            // that means there is the only digit in a string that is not a house number.
+            // no need to repeat the search for the same digit.
             return null;
         }
+        
+        return tryGetHouseNumberAtPosition(wordTraversal, lastDigit);
+    }
+    
+    private FindResult tryGetHouseNumberAtPosition(WordTraversal wordTraversal, WordEntry startWordEntry) {
+        int startPosition = tryToExpandToTheBeginning(wordTraversal, startWordEntry.getIndex());
+        int endPosition = tryToExpandToTheEnd(wordTraversal, startWordEntry.getIndex());
+        
+        // if found result is not at the beginning or not at the end of the string - that is not a house number
+        // because house number can not be in the middle
+        if (startPosition != 0 && endPosition != wordTraversal.getWordsCount()) {
+            return null;
+        } else {
+            return new FindResult(startPosition, endPosition);
+        }
+    }
+
+    private int tryToExpandToTheEnd(WordTraversal wordTraversal, int startIndex) {
+        wordTraversal.moveToPositionAndGet(startIndex);
+        
+        WordEntry current;
+        do {
+            current = wordTraversal.getAndMoveToNext();
+            if (current == null) {   // we reached the end 
+                return wordTraversal.getWordsCount();
+            }
+        } while (isAPartOfAHouseNumber(wordTraversal, current));
+        return current.getIndex();   
+
+    }
+
+    private int tryToExpandToTheBeginning(WordTraversal wordTraversal, int startIndex) {
+        wordTraversal.moveToPositionAndGet(startIndex);
 
         WordEntry current;
         do {
-            current = wordTraversal.moveToPrevious();
-            if (current == null) {   // we reached the beginning
-                return new FindResult(0, firstDigit.getIndex());
+            current = wordTraversal.getAndMoveToPrevious();
+            if (current == null) {   // we reached the beginning 
+                return 0;
             }
-        } while (isAPartOfAHouseNumber(current));
-        return null;   // we return null because of assumption that house number can not be in the middle
+            if (isMarkerOfStartHouseNumber(current)) {
+                return current.getIndex(); 
+            }
+            
+        } while (isAPartOfAHouseNumber(wordTraversal, current));
+        return current.getIndex() + 1;
     }
 
-    private boolean isAPartOfAHouseNumber(WordEntry current) {
+    private boolean isMarkerOfStartHouseNumber(WordEntry current) {
+        return StartStreetMarker.isStartMarker(current.getValue());
+    }
+
+    private boolean isAPartOfAHouseNumber(WordTraversal wordTraversal, WordEntry current) {
+        String word = current.getValue();
+        if (wordTraversal.isDelimiter(word)) {
+            return false;
+        }
+        
+        return word.length() == 1 || wordContainsNumbers(word); 
+    }
+
+    private boolean wordContainsNumbers(String word) {
+        for (Character ch : word.toCharArray()) {
+            if (Character.isDigit(ch)) {
+                return true;
+            }    
+        }
+        
         return false;
     }
 
     @Nullable
     WordEntry moveToFirstDigit(WordTraversal wordTraversal) {
-        WordEntry current = wordTraversal.moveToFirst();
+        WordEntry current = wordTraversal.moveToBeginningAndGet();
 
-        while (current != null && !isDigit(current.getValue())) {
-            current = wordTraversal.moveToNext();
+        while (current != null && !wordContainsNumbers(current.getValue())) {
+            current = wordTraversal.getAndMoveToNext();
         }
         return current;
     }
 
     @Nullable
     WordEntry moveToLastDigit(WordTraversal wordTraversal) {
-        WordEntry current = wordTraversal.moveToLast();
+        WordEntry current = wordTraversal.moveToEndAndGet();
 
-        while (current != null && !isDigit(current.getValue())) {
-            current = wordTraversal.moveToPrevious();
+        while (current != null && !wordContainsNumbers(current.getValue())) {
+            current = wordTraversal.getAndMoveToPrevious();
         }
         return current;
-    }
-
-    private boolean isDigit(String value) {
-        try {
-            Integer.parseInt(value);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
     }
 }

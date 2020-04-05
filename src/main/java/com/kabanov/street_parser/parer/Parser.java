@@ -1,6 +1,7 @@
 package com.kabanov.street_parser.parer;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.kabanov.street_parser.data.Address;
 import com.kabanov.street_parser.parer.extractor.WordExtractor;
 import com.kabanov.street_parser.parer.traversal.WordTraversal;
@@ -13,7 +14,8 @@ public class Parser {
     private WordTraversalFactory wordTraversalFactory;
 
     @Inject
-    public Parser(WordExtractor houseNumberExtractor, WordExtractor addressExtractor,
+    public Parser(@Named("houseNumberExtractor") WordExtractor houseNumberExtractor,
+                  @Named("addressExtractor") WordExtractor addressExtractor,
                   WordTraversalFactory wordTraversalFactory) {
         this.houseNumberExtractor = houseNumberExtractor;
         this.addressExtractor = addressExtractor;
