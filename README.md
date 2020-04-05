@@ -1,4 +1,4 @@
-# street-name-parser
+# Street Name Parser
 
 Program to parse concatenated street names and numbers into the object with separated field for street name and 
 house number, represented as JSON object
