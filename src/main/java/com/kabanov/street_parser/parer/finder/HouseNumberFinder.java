@@ -49,7 +49,7 @@ public class HouseNumberFinder {
         
         WordEntry current;
         do {
-            current = wordTraversal.getAndMoveToNext();
+            current = wordTraversal.moveToNextAndGet();
             if (current == null) {   // we reached the end 
                 return wordTraversal.getWordsCount();
             }
@@ -63,7 +63,7 @@ public class HouseNumberFinder {
 
         WordEntry current;
         do {
-            current = wordTraversal.getAndMoveToPrevious();
+            current = wordTraversal.moveToPreviousAndGet();
             if (current == null) {   // we reached the beginning 
                 return 0;
             }
@@ -103,7 +103,7 @@ public class HouseNumberFinder {
         WordEntry current = wordTraversal.moveToBeginningAndGet();
 
         while (current != null && !wordContainsNumbers(current.getValue())) {
-            current = wordTraversal.getAndMoveToNext();
+            current = wordTraversal.moveToNextAndGet();
         }
         return current;
     }
@@ -113,7 +113,7 @@ public class HouseNumberFinder {
         WordEntry current = wordTraversal.moveToEndAndGet();
 
         while (current != null && !wordContainsNumbers(current.getValue())) {
-            current = wordTraversal.getAndMoveToPrevious();
+            current = wordTraversal.moveToPreviousAndGet();
         }
         return current;
     }

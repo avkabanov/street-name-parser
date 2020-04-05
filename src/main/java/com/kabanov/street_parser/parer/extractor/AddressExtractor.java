@@ -18,7 +18,7 @@ public class AddressExtractor implements WordExtractor {
     private int getEndIndex(WordTraversal wordTraversal) {
         WordEntry current = wordTraversal.moveToEndAndGet();
         while (wordTraversal.isDelimiter(current.getValue())) {
-            current = wordTraversal.getAndMoveToPrevious();
+            current = wordTraversal.moveToPreviousAndGet();
         }
         return current.getIndex() + 1;
     }
@@ -29,7 +29,7 @@ public class AddressExtractor implements WordExtractor {
     private int getStartIndex(WordTraversal wordTraversal) {
         WordEntry current = wordTraversal.moveToBeginningAndGet();
         while (wordTraversal.isDelimiter(current.getValue())) {
-            current = wordTraversal.getAndMoveToNext();
+            current = wordTraversal.moveToNextAndGet();
         }
         return current.getIndex();
     }

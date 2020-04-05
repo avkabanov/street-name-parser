@@ -6,10 +6,10 @@ import javax.annotation.Nullable;
 public interface WordTraversal {
 
     @Nullable
-    WordEntry getAndMoveToPrevious();
+    WordEntry moveToPreviousAndGet();
 
     @Nullable
-    WordEntry getAndMoveToNext();
+    WordEntry moveToNextAndGet();
 
     @Nonnull
     WordEntry moveToBeginningAndGet();

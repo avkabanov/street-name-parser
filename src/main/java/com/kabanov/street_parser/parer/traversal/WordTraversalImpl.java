@@ -44,21 +44,21 @@ public class WordTraversalImpl implements WordTraversal {
 
     @Nullable
     @Override
-    public WordEntry getAndMoveToPrevious() {
-        if (currentWord < 0) {
+    public WordEntry moveToPreviousAndGet() {
+        if (currentWord == 0) {
             return null;
         } else {
-            return createCurrentWordEntry(currentWord--);
+            return createCurrentWordEntry(--currentWord);
         }
     }
 
     @Nullable
     @Override
-    public WordEntry getAndMoveToNext() {
-        if (currentWord == words.size()) {
+    public WordEntry moveToNextAndGet() {
+        if (currentWord == words.size() - 1) {
             return null;
         } else {
-            return createCurrentWordEntry(currentWord++);
+            return createCurrentWordEntry(++currentWord);
         }
     }
 
